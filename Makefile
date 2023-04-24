@@ -1,5 +1,10 @@
 VENV_NAME=venv
 
+.PHONY: init
+init:
+	@echo "Git init..."
+	@git init
+
 .PHONY: open
 open:
 	@open http://localhost:8000

@@ -1,9 +1,8 @@
-from django.contrib import messages
-from django.shortcuts import redirect, get_object_or_404, render
 from django.urls import reverse_lazy
 from django.views import View
+from django.contrib import messages
+from django.shortcuts import redirect, get_object_or_404, render
 from django.views.generic import TemplateView, CreateView, ListView
-from django.contrib.auth.decorators import login_required
 
 from apps.wallet.forms import AccountForm, TransactionForm
 from apps.wallet.models import Account
@@ -18,7 +17,7 @@ class HomePage(TemplateView):
         return context
 
 
-class AccountView(View):
+class IsAuthenticatedView(View):
     def dispatch(self, request, *args, **kwargs):
         if not self.request.user.is_authenticated:
             return redirect('login')
@@ -26,7 +25,7 @@ class AccountView(View):
         return super().dispatch(request, *args, **kwargs)
 
 
-class AccountListView(AccountView, ListView):
+class AccountListView(IsAuthenticatedView, ListView):
     template_name = 'wallet/accounts.html'
     context_object_name = 'accounts'
 
@@ -34,7 +33,7 @@ class AccountListView(AccountView, ListView):
         return Account.objects.filter(owner=self.request.user)
 
 
-class AccountCreateView(AccountView, CreateView):
+class AccountCreateView(IsAuthenticatedView, CreateView):
     model = Account
     fields = ('name', 'balance')
     template_name = 'wallet/form.html'
@@ -74,9 +73,9 @@ def account_delete(request, pk):
     return redirect('account')
 
 
-class TransactionView(View):
+class TransactionView(IsAuthenticatedView, View):
     def get(self, request):
-        form = TransactionForm()
+        form = TransactionForm(user=request.user)
         return render(request, 'wallet/transaction.html', {'form': form, 'title': 'Создать транзакцию'})
 
     def post(self, request):

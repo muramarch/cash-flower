@@ -8,5 +8,6 @@ urlpatterns = [
     path('account-create/', AccountCreateView.as_view(), name='account-create'),
     path('account-update/<int:pk>/', account_update, name='account-update'),
     path('accounts-delete/<int:pk>/', account_delete, name='account-delete'),
+
     path('transaction/', TransactionView.as_view(), name='transaction'),
 ]

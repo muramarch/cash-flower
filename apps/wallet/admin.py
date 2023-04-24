@@ -65,7 +65,6 @@ class TransactionAdmin(admin.ModelAdmin):
         'tags',
         'description',
     )
-    list_per_page = 1
 
 
 @admin.register(Image)

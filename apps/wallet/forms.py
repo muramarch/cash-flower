@@ -13,9 +13,14 @@ class AccountForm(forms.ModelForm):
 
 
 class TransactionForm(forms.ModelForm):
+    account = forms.ModelChoiceField(
+        queryset=Account.objects.none(),
+        label='Счет',
+    )
     category = forms.ModelChoiceField(
         queryset=Category.objects.all(),
-        required=True
+        initial=Category.objects.first(),
+        label='Категория',
     )
 
     class Meta:
@@ -28,6 +33,10 @@ class TransactionForm(forms.ModelForm):
             'description',
             'amount',
         )
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['account'].queryset = Account.objects.filter(owner=user)
 
     def clean(self):
         form_data = self.cleaned_data
@@ -47,16 +56,16 @@ class TransactionForm(forms.ModelForm):
             raise ValidationError('Счета должны отличаться')
 
         if account.balance < int(amount):
-            return ValidationError('transaction')
+            raise ValidationError('transaction')
 
         return form_data
 
     @transaction_atomic.atomic
     def save(self, commit=True):
         transaction = super().save(commit=False)
+        from_account = transaction.account
 
-        if transaction.to_account:
-            from_account = transaction.account
+        if transaction.category.type == TRANSACTION_CHOICES.TRANSFER:
             to_account = transaction.to_account
 
             from_account.balance -= transaction.amount
@@ -65,4 +74,13 @@ class TransactionForm(forms.ModelForm):
             from_account.save()
             to_account.save()
 
+        elif transaction.category.type == TRANSACTION_CHOICES.EXPENSE:
+            from_account.balance -= transaction.amount
+            from_account.save()
+
+        elif transaction.category.type == TRANSACTION_CHOICES.INCOME:
+            from_account.balance += transaction.amount
+            from_account.save()
+
+        transaction.save()
         return transaction

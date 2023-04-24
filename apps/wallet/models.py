@@ -24,7 +24,7 @@ class Account(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.balance}"
 
     class Meta:
         verbose_name = 'Счет'
@@ -98,7 +98,7 @@ class Transaction(models.Model):
     )
 
     def __str__(self):
-        return f"{self.account} - {self.to_account}"
+        return f"{self.account} - {self.category} - {self.amount}"
 
     def clean(self):
         transaction_validation(self)
