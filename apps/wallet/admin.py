@@ -1,5 +1,11 @@
 from django.contrib import admin
-from .models import Account, Tag, Category, Transaction, Image
+from .models import Account, Tag, Category, Transaction, TransactionImage
+
+
+class TransactionImageInline(admin.TabularInline):
+    model = TransactionImage
+    extra = 5
+    max_num = 5
 
 
 @admin.register(Account)
@@ -65,8 +71,13 @@ class TransactionAdmin(admin.ModelAdmin):
         'tags',
         'description',
     )
+    inlines = (TransactionImageInline,)
 
 
-@admin.register(Image)
-class ImageAdmin(admin.ModelAdmin):
-    list_display = ('id', 'image', 'transaction')
+@admin.register(TransactionImage)
+class TransactionImageAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'image',
+        'transaction'
+    )

@@ -109,15 +109,16 @@ class Transaction(models.Model):
         verbose_name_plural = 'Транзакции'
 
 
-class Image(models.Model):
+class TransactionImage(models.Model):
     transaction = models.ForeignKey(
         Transaction,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='images'
     )
     image = models.ImageField(upload_to='media/images/')
 
     def __str__(self):
-        return self.transaction
+        return str(self.transaction)
 
     class Meta:
         verbose_name = 'Изображение'
