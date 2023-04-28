@@ -80,3 +80,13 @@ class TransactionForm(forms.ModelForm):
 
         transaction.save()
         return transaction
+    
+
+class TransactionImageForm(forms.ModelForm):
+    class Meta:
+        model = TransactionImage
+        fields = ('image',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['image'].widget.attrs.update({'class': 'form-control-file'})

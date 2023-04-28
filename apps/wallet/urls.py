@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import HomePage, AccountListView, AccountCreateView, account_update, account_delete, TransactionView
+from .views import HomePage, AccountListView, AccountCreateView, account_update, account_delete, TransactionView, TransactionImageView
 
 urlpatterns = [
     path('', HomePage.as_view(), name='index'),
@@ -10,4 +10,6 @@ urlpatterns = [
     path('accounts-delete/<int:pk>/', account_delete, name='account-delete'),
 
     path('transaction/', TransactionView.as_view(), name='transaction'),
+    path('transaction/', TransactionImageView.as_view(), name='transactionImage'),
+    path('transaction/<int:transaction_id>/image/', TransactionImageView.as_view(), name='transaction_image'),
 ]

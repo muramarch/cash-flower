@@ -1,11 +1,12 @@
+from asyncio import format_helpers
 from django.contrib import admin
 from .models import Account, Tag, Category, Transaction, TransactionImage
 
 
 class TransactionImageInline(admin.TabularInline):
     model = TransactionImage
-    extra = 5
-    max_num = 5
+    # extra = 5
+    # max_num = 5
 
 
 @admin.register(Account)
@@ -73,6 +74,7 @@ class TransactionAdmin(admin.ModelAdmin):
     )
     inlines = (TransactionImageInline,)
 
+    
 
 @admin.register(TransactionImage)
 class TransactionImageAdmin(admin.ModelAdmin):
@@ -81,3 +83,13 @@ class TransactionImageAdmin(admin.ModelAdmin):
         'image',
         'transaction'
     )
+
+    def image_preview(self, obj):
+        image_html = ''
+        if obj.images.exists():
+            image_html = format_helpers('<img src="{}" height="50"/>', obj.images.first().image.url)
+        return image_html
+
+    image_preview.short_description = 'Изображение'
+
+    

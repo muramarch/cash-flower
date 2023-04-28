@@ -1,11 +1,12 @@
+from django.http import HttpResponseBadRequest
 from django.urls import reverse_lazy
 from django.views import View
 from django.contrib import messages
 from django.shortcuts import redirect, get_object_or_404, render
 from django.views.generic import TemplateView, CreateView, ListView
 
-from apps.wallet.forms import AccountForm, TransactionForm
-from apps.wallet.models import Account
+from apps.wallet.forms import AccountForm, TransactionForm, TransactionImageForm
+from apps.wallet.models import Account, Transaction, TransactionImage
 
 
 class HomePage(TemplateView):
@@ -79,7 +80,7 @@ class TransactionView(IsAuthenticatedView, View):
         return render(request, 'wallet/transaction.html', {'form': form, 'title': 'Создать транзакцию'})
 
     def post(self, request):
-        form = TransactionForm(request.POST)
+        form = TransactionForm(request.user, data=request.POST)
 
         if form.is_valid():
             form.save()
@@ -88,3 +89,22 @@ class TransactionView(IsAuthenticatedView, View):
 
         messages.success(request, f"{form.errors}")
         return redirect('transaction')
+    
+
+class TransactionImageView(View):
+    def get(self, request, transaction_id):
+        transaction = get_object_or_404(Transaction, pk=transaction_id, account__owner=request.user)
+        form = TransactionImageForm()
+        return render(request, 'wallet/transaction_image.html', {'form': form, 'transaction': transaction})
+
+    def post(self, request, transaction_id):
+        transaction = get_object_or_404(Transaction, pk=transaction_id, account__owner=request.user)
+        form = TransactionImageForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            image = form.save(commit=False)
+            image.transaction = transaction
+            image.save()
+            return redirect('transaction')
+
+        return render(request, 'wallet/transaction_image.html', {'form': form, 'transaction': transaction})
